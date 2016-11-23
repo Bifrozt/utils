@@ -3,9 +3,19 @@ from aws_vpn_config import awsVpnConfig
 from pprint import pprint
 from jinja2 import Environment, FileSystemLoader
 import os
+import argparse
 
-cfgrdr = awsVpnConfig(region='ap-southeast-1')
+
+help_text = "generate some AWS configs from templates. -h for help"
+parser = argparse.ArgumentParser( help_text )
+parser.add_argument( '--template', help='Template file to use', default='myCisco' )
+parser.add_argument( '--region',   help='AWS Region to use', default='ap-southeast-1' )
+args = parser.parse_args( )
+
+cfgrdr = awsVpnConfig(region=args.region)
 config = cfgrdr.get()
+
+
 
 # Resort the vpn configs
 # We want to split the output by which router it's going to be used on.
@@ -30,10 +40,9 @@ for vpn in config:
     pprint(newConfig[routerIP])
 
 
-templates = ['myCisco']
 templatedir = os.path.realpath("./templates")
 for key, value in newConfig.iteritems():
     ENV = Environment(loader=FileSystemLoader(templatedir))
     for tmplt in templates:
-        template = ENV.get_template(tmplt + ".j2")
+        template = ENV.get_template(args.template + ".j2")
         print template.render(config=value)
