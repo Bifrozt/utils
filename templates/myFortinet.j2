@@ -1,7 +1,8 @@
 #################################################################################
           VPN Connections to router: {{ config[0]['RouterIP'] }}
 #################################################################################
-
+{% for VpnConnection in config -%}
+{% for Vpn in VpnConnection['CustomerGatewayConfiguration'] %}
 
 config vpn ipsec phase1-interface
     edit "{{ VpnConnection['Region'] }}_{{ VpnConnection['Tags']['Name'] }}_{{ loop.index }}"
@@ -70,5 +71,8 @@ config router access-list
             end 
     next
 end 
+
+{% endfor %}
+{% endfor %}
 
 
